@@ -23,16 +23,20 @@
 #include<opencv2/core/core.hpp>
 
 #include<Eigen/Dense>
-#include"Thirdparty/g2o/g2o/types/types_six_dof_expmap.h"
-#include"Thirdparty/g2o/g2o/types/types_seven_dof_expmap.h"
+#include <g2o/types/sba/types_six_dof_expmap.h>
+#include <g2o/types/sim3/types_seven_dof_expmap.h>
+//#include"Thirdparty/g2o/g2o/types/types_six_dof_expmap.h"
+//#include"Thirdparty/g2o/g2o/types/types_seven_dof_expmap.h"
 
-#include "Thirdparty/Sophus/sophus/geometry.hpp"
-#include "Thirdparty/Sophus/sophus/sim3.hpp"
-
+//#include "Thirdparty/Sophus/sophus/geometry.hpp"
+//#include "Thirdparty/Sophus/sophus/sim3.hpp"
+#include <sophus/sim3.hpp>
+#include <sophus/geometry.hpp>
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
-
-class Converter
+    using namespace std;
+class WIN_EXPORT Converter
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

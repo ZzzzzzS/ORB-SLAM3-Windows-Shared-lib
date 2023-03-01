@@ -51,11 +51,11 @@
 #include <opencv2/core/core.hpp>
 #include "MapPoint.h"
 #include "Frame.h"
-
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
-
-class PnPsolver {
+using namespace std;
+class WIN_EXPORT PnPsolver {
  public:
   PnPsolver(const Frame &F, const vector<MapPoint*> &vpMapPointMatches);
 

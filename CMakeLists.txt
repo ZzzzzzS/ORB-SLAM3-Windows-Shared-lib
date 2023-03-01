@@ -1,9 +1,16 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 project(ORB_SLAM3)
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
+
+#IF(CMAKE_HOST_WIN32)
+##	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+#add_definitions(DLLEXPORT=__declspec(dllexport))
+#ENDIF()
+
+
 
 MESSAGE("Build type: " ${CMAKE_BUILD_TYPE})
 
@@ -16,6 +23,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+set(COMPILER_SUPPORTS_CXX11 TRUE)
 if(COMPILER_SUPPORTS_CXX11)
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
    add_definitions(-DCOMPILEDWITHC11)
@@ -32,7 +40,7 @@ LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 
 # 要保证整个工程的opencv版本一致，包括dbow，源码以及ros相关的
 # 3 4 都可以正常运行
-find_package(OpenCV 3.2)
+find_package(OpenCV QUIET)
    if(NOT OpenCV_FOUND)
       message(FATAL_ERROR "OpenCV > 3.2 not found.")
    endif()
@@ -42,19 +50,22 @@ MESSAGE(${OpenCV_VERSION})
 
 find_package(Eigen3 3.1.0 REQUIRED)
 find_package(Pangolin REQUIRED)
+find_package(SOPHUS REQUIRED)
+find_package(g2o CONFIG REQUIRED)
 find_package(realsense2)
+find_package(Boost REQUIRED COMPONENTS serialization)
+find_package(OpenSSL REQUIRED)
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
 ${PROJECT_SOURCE_DIR}/include
 ${PROJECT_SOURCE_DIR}/include/CameraModels
-${PROJECT_SOURCE_DIR}/Thirdparty/Sophus
+#${PROJECT_SOURCE_DIR}/Thirdparty/Sophus
 ${EIGEN3_INCLUDE_DIR}
 ${Pangolin_INCLUDE_DIRS}
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
-
 add_library(${PROJECT_NAME} SHARED
 src/System.cc
 src/Tracking.cc
@@ -78,6 +89,12 @@ src/ImuTypes.cc
 src/G2oTypes.cc
 src/CameraModels/Pinhole.cpp
 src/CameraModels/KannalaBrandt8.cpp
+src/DUtils/Random.cpp
+src/DUtils/Timestamp.cpp
+src/DBoW2/BowVector.cpp
+src/DBoW2/FeatureVector.cpp
+src/DBoW2/FORB.cpp
+src/DBoW2/ScoringObject.cpp
 src/OptimizableTypes.cpp
 src/MLPnPsolver.cpp
 src/GeometricTools.cc
@@ -115,16 +132,24 @@ include/SerializationUtils.h
 include/Config.h
 include/Settings.h)
 
-add_subdirectory(Thirdparty/g2o)
+#add_subdirectory(Thirdparty/g2o)
+
+target_compile_options(${PROJECT_NAME} 
+	PRIVATE 
+	$<$<CXX_COMPILER_ID:MSVC>:/bigobj> 
+	$<$<AND:$<CXX_COMPILER_ID:GNU>,$<BOOL:${GNU_BIG_OBJ_FLAG_ENABLE}>>:-Wa,-mbig-obj>) 
 
 target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}
 ${EIGEN3_LIBS}
 ${Pangolin_LIBRARIES}
-${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
-${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
--lboost_serialization
--lcrypto
+Sophus::Sophus
+g2o::core g2o::stuff g2o::types_icp g2o::types_sba g2o::types_sim3
+#${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
+#${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
+Boost::boost
+Boost::serialization
+OpenSSL::Crypto
 )
 
 # If RealSense SDK is found the library is added and its examples compiled

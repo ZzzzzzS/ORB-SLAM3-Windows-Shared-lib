@@ -25,7 +25,6 @@
 namespace ORB_SLAM3
 {
 // BOOST_CLASS_EXPORT_GUID(KannalaBrandt8, "KannalaBrandt8")
-
 /** 
  * @brief 投影
  * xc​ = Xc/Zc, yc = Yc/Zc
@@ -192,7 +191,7 @@ cv::Point3f KannalaBrandt8::unproject(const cv::Point2f &p2D)
         float theta = theta_d;
 
         // 开始迭代
-        for (int j = 0; j < 10; j++)
+        for (int j = 0; j < 10; j++) //我感觉不如存一个map，直接查表
         {
             float theta2 = theta * theta,
                   theta4 = theta2 * theta2,

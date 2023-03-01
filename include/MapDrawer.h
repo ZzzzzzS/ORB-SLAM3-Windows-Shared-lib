@@ -27,13 +27,13 @@
 #include<pangolin/pangolin.h>
 
 #include<mutex>
-
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
-
+using namespace std;
 class Settings;
 
-class MapDrawer
+class WIN_EXPORT MapDrawer
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

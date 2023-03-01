@@ -25,12 +25,12 @@
 
 #include "KeyFrame.h"
 
-
+#define WIN_EXPORT __declspec( dllexport )
 
 namespace ORB_SLAM3
 {
-
-class Sim3Solver
+using namespace std;
+class WIN_EXPORT Sim3Solver
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

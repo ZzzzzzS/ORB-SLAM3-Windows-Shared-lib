@@ -29,6 +29,27 @@
 #include<thread>
 
 
+#ifdef WIN32
+#include <windows.h>
+#define sleep(sec)   Sleep(sec * 1000)
+#define msleep(msec) Sleep(msec)
+
+static void usleep(unsigned long usec)
+{
+    HANDLE timer;
+    LARGE_INTEGER interval;
+    interval.QuadPart = -(10 * usec);
+
+    timer = CreateWaitableTimer(NULL, TRUE, NULL);
+    SetWaitableTimer(timer, &interval, 0, NULL, NULL, 0);
+    WaitForSingleObject(timer, INFINITE);
+    CloseHandle(timer);
+}
+#else
+#include <unistd.h>
+#define msleep(msec) usleep(msec * 1000)
+#endif
+
 namespace ORB_SLAM3
 {
 
@@ -1217,16 +1238,11 @@ int LoopClosing::FindMatchesByProjection(
                 {
                     spCheckKFs.insert(vpKFs[j]);
                     ++nInserted;
-
-                    // 改成这样
-                    vpCovKFm.push_back(vpKFs[j]);
                 }
                 ++j;
             }
-            // 这里是原来的代码，这么写不太合适，会出现重复
-            // 所以下面的插入可以改成放在if里面
             // 把每个帧的共视关键帧都加到窗口内
-            // vpCovKFm.insert(vpCovKFm.end(), vpKFs.begin(), vpKFs.end());  // 已放上面
+            vpCovKFm.insert(vpCovKFm.end(), vpKFs.begin(), vpKFs.end());
         }
     }
 
@@ -2279,8 +2295,8 @@ void LoopClosing::MergeLocal()
     // Essential graph 优化后可以重新开始局部建图了
     mpLocalMapper->Release();
 
-    // 全局的BA，后面一串的判断都为true
-    // !pCurrentMap->isImuInitialized()一定是true
+    // 全局的BA（永远不会执行）
+    // 这里没有imu, 所以isImuInitialized一定是false, 此时地图融合Atlas至少2个地图，所以第二个条件也一定是false
     // Step 9 全局BA
     if(bRelaunchBA && (!pCurrentMap->isImuInitialized() || (pCurrentMap->KeyFramesInMap()<200 && mpAtlas->CountMaps()==1)))
     {

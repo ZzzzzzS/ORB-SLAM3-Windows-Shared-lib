@@ -30,14 +30,14 @@
 #include<mutex>
 #include <unordered_set>
 
-
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
-
+using namespace std;
 class Tracking;
 class Viewer;
 
-class FrameDrawer
+class WIN_EXPORT FrameDrawer
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

@@ -33,15 +33,15 @@
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/map.hpp>
-
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
-
+using namespace std;
 class KeyFrame;
 class Map;
 class Frame;
 
-class MapPoint
+class WIN_EXPORT MapPoint
 {
 
     friend class boost::serialization::access;
@@ -123,12 +123,12 @@ public:
     int Observations();
 
     void AddObservation(KeyFrame* pKF,int idx);
-    void EraseObservation(KeyFrame* pKF, bool erase = true);
+    void EraseObservation(KeyFrame* pKF);
 
     std::tuple<int,int> GetIndexInKeyFrame(KeyFrame* pKF);
     bool IsInKeyFrame(KeyFrame* pKF);
 
-    void SetBadFlag(bool erase = true);
+    void SetBadFlag();
     bool isBad();
 
     void Replace(MapPoint* pMP);    

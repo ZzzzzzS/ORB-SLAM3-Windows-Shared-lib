@@ -423,7 +423,7 @@ void EdgeMono::linearizeOplus()
     // 先带入Rwb (Rwb * EXP(φ)).t() * (Pw - twb) - Rwb.t() * (Pw - twb)
     // 打开后算得imu坐标系下的三维点 相对于 imu r的雅克比为Pb^
     // 同理带入t可得imu坐标系下的三维点 相对于 imu t的雅克比为 -I
-    // 差了个负号，因为与proj_jac负号相抵，因此是正确的
+    // 差了个负号，因为与proj_jac负号相抵，因此是正确的 //TODO: 证明
     _jacobianOplusXj = proj_jac * Rcb * SE3deriv; // symbol different becasue of update mode
 }
 

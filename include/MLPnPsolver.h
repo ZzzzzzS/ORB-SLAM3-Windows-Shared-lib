@@ -54,9 +54,10 @@
 
 #include<Eigen/Dense>
 #include<Eigen/Sparse>
-
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3{
-    class MLPnPsolver {
+        using namespace std;
+    class WIN_EXPORT MLPnPsolver {
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

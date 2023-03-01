@@ -19,6 +19,8 @@
 #ifndef CAMERAMODELS_PINHOLE_H
 #define CAMERAMODELS_PINHOLE_H
 
+#define WIN_EXPORT __declspec( dllexport )
+
 #include <assert.h>
 
 #include "GeometricCamera.h"
@@ -26,7 +28,8 @@
 #include "TwoViewReconstruction.h"
 
 namespace ORB_SLAM3 {
-    class Pinhole : public GeometricCamera {
+    using namespace std;
+    class WIN_EXPORT Pinhole : public GeometricCamera {
 
     friend class boost::serialization::access;
 

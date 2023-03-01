@@ -24,14 +24,14 @@
 #include <Eigen/Dense>
 #include <unsupported/Eigen/MatrixFunctions>
 
-#include "Thirdparty/g2o/g2o/core/sparse_block_matrix.h"
-#include "Thirdparty/g2o/g2o/core/block_solver.h"
-#include "Thirdparty/g2o/g2o/core/optimization_algorithm_levenberg.h"
-#include "Thirdparty/g2o/g2o/core/optimization_algorithm_gauss_newton.h"
-#include "Thirdparty/g2o/g2o/solvers/linear_solver_eigen.h"
-#include "Thirdparty/g2o/g2o/types/types_six_dof_expmap.h"
-#include "Thirdparty/g2o/g2o/core/robust_kernel_impl.h"
-#include "Thirdparty/g2o/g2o/solvers/linear_solver_dense.h"
+#include "g2o/core/sparse_block_matrix.h"
+#include "g2o/core/block_solver.h"
+#include "g2o/core/optimization_algorithm_levenberg.h"
+#include "g2o/core/optimization_algorithm_gauss_newton.h"
+#include "g2o/solvers/eigen/linear_solver_eigen.h"
+#include "g2o/types/sba/types_six_dof_expmap.h"
+#include "g2o/core/robust_kernel_impl.h"
+#include "g2o/solvers/dense/linear_solver_dense.h"
 #include "G2oTypes.h"
 #include "Converter.h"
 
@@ -41,6 +41,7 @@
 
 namespace ORB_SLAM3
 {
+    using namespace std;
 bool sortByVal(const pair<MapPoint *, int> &a, const pair<MapPoint *, int> &b)
 {
     return (a.second < b.second);
@@ -62,9 +63,9 @@ int Optimizer::PoseOptimization(Frame *pFrame)
 
     linearSolver = new g2o::LinearSolverDense<g2o::BlockSolver_6_3::PoseMatrixType>();
 
-    g2o::BlockSolver_6_3 *solver_ptr = new g2o::BlockSolver_6_3(linearSolver);
+    g2o::BlockSolver_6_3 *solver_ptr = new g2o::BlockSolver_6_3(std::unique_ptr<g2o::BlockSolver_6_3::LinearSolverType>(linearSolver));
 
-    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(std::unique_ptr<g2o::BlockSolver_6_3>(solver_ptr));
     optimizer.setAlgorithm(solver);
 
     // 输入的帧中,有效的,参与优化过程的2D-3D点对
@@ -423,9 +424,9 @@ int Optimizer::PoseInertialOptimizationLastKeyFrame(Frame *pFrame, bool bRecInit
     // 使用dense的求解器，（常见非dense求解器有cholmod线性求解器和shur补线性求解器）
     linearSolver = new g2o::LinearSolverDense<g2o::BlockSolverX::PoseMatrixType>();
 
-    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(linearSolver);
+    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(std::unique_ptr<g2o::BlockSolverX::LinearSolverType>(linearSolver));
     // 使用高斯牛顿求解器
-    g2o::OptimizationAlgorithmGaussNewton *solver = new g2o::OptimizationAlgorithmGaussNewton(solver_ptr);
+    g2o::OptimizationAlgorithmGaussNewton *solver = new g2o::OptimizationAlgorithmGaussNewton(std::unique_ptr<g2o::BlockSolverX>(solver_ptr));
     optimizer.setVerbose(false);
     optimizer.setAlgorithm(solver);
 
@@ -990,10 +991,10 @@ int Optimizer::PoseInertialOptimizationLastFrame(Frame *pFrame, bool bRecInit)
     // 使用dense的求解器，（常见非dense求解器有cholmod线性求解器和shur补线性求解器）
     linearSolver = new g2o::LinearSolverDense<g2o::BlockSolverX::PoseMatrixType>();
 
-    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(linearSolver);
+    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(std::unique_ptr<g2o::BlockSolverX::LinearSolverType>(linearSolver));
 
     // 使用高斯牛顿求解器
-    g2o::OptimizationAlgorithmGaussNewton *solver = new g2o::OptimizationAlgorithmGaussNewton(solver_ptr);
+    g2o::OptimizationAlgorithmGaussNewton *solver = new g2o::OptimizationAlgorithmGaussNewton(std::unique_ptr<g2o::BlockSolverX>(solver_ptr));
     optimizer.setAlgorithm(solver);
     optimizer.setVerbose(false);
 
@@ -1861,9 +1862,9 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool *pbStopFlag, Map *pMap
 
     linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>();
 
-    g2o::BlockSolver_6_3 *solver_ptr = new g2o::BlockSolver_6_3(linearSolver);
+    g2o::BlockSolver_6_3 *solver_ptr = new g2o::BlockSolver_6_3(std::unique_ptr<g2o::BlockSolver_6_3::LinearSolverType>(linearSolver));
 
-    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(std::unique_ptr<g2o::BlockSolver_6_3>(solver_ptr));
     if (pMap->IsInertial())
         solver->setUserLambdaInit(100.0);
 
@@ -2339,17 +2340,17 @@ void Optimizer::LocalInertialBA(
     g2o::BlockSolverX::LinearSolverType *linearSolver;
     linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolverX::PoseMatrixType>();
 
-    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(linearSolver);
+    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(std::unique_ptr<g2o::BlockSolverX::LinearSolverType>(linearSolver));
 
     if (bLarge)
     {
-        g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+        g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(std::unique_ptr<g2o::BlockSolverX>(solver_ptr));
         solver->setUserLambdaInit(1e-2); // to avoid iterating for finding optimal lambda
         optimizer.setAlgorithm(solver);
     }
     else
     {
-        g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+        g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(std::unique_ptr<g2o::BlockSolverX>(solver_ptr));
         solver->setUserLambdaInit(1e0);
         optimizer.setAlgorithm(solver);
     }
@@ -2844,10 +2845,10 @@ void Optimizer::BundleAdjustment(
 
     linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>();
 
-    g2o::BlockSolver_6_3 *solver_ptr = new g2o::BlockSolver_6_3(linearSolver);
+    g2o::BlockSolver_6_3 *solver_ptr = new g2o::BlockSolver_6_3(std::unique_ptr<g2o::BlockSolver_6_3::LinearSolverType>(linearSolver));
 
     // 使用LM算法优化
-    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(std::unique_ptr<g2o::BlockSolver_6_3>(solver_ptr));
     optimizer.setAlgorithm(solver);
     optimizer.setVerbose(false);
     // 如果这个时候外部请求终止，那就结束
@@ -3250,9 +3251,9 @@ void Optimizer::FullInertialBA(
 
     linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolverX::PoseMatrixType>();
 
-    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(linearSolver);
+    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(std::unique_ptr<g2o::BlockSolverX::LinearSolverType>(linearSolver));
 
-    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(std::unique_ptr<g2o::BlockSolverX>(solver_ptr));
     solver->setUserLambdaInit(1e-5);
     optimizer.setAlgorithm(solver);
     optimizer.setVerbose(false);
@@ -3701,9 +3702,9 @@ void Optimizer::InertialOptimization(
 
     linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolverX::PoseMatrixType>();
 
-    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(linearSolver);
+    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(std::unique_ptr<g2o::BlockSolverX::LinearSolverType>(linearSolver));
 
-    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(std::unique_ptr<g2o::BlockSolverX>(solver_ptr));
 
     if (priorG != 0.f)
         solver->setUserLambdaInit(1e3);
@@ -3902,9 +3903,9 @@ void Optimizer::InertialOptimization(Map *pMap, Eigen::Vector3d &bg, Eigen::Vect
 
     linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolverX::PoseMatrixType>();
 
-    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(linearSolver);
+    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(std::unique_ptr<g2o::BlockSolverX::LinearSolverType>(linearSolver));
 
-    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(std::unique_ptr<g2o::BlockSolverX>(solver_ptr));
     solver->setUserLambdaInit(1e3);
 
     optimizer.setAlgorithm(solver);
@@ -4077,9 +4078,9 @@ void Optimizer::InertialOptimization(Map *pMap, Eigen::Matrix3d &Rwg, double &sc
 
     linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolverX::PoseMatrixType>();
 
-    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(linearSolver);
+    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(std::unique_ptr<g2o::BlockSolverX::LinearSolverType>(linearSolver));
 
-    g2o::OptimizationAlgorithmGaussNewton *solver = new g2o::OptimizationAlgorithmGaussNewton(solver_ptr);
+    g2o::OptimizationAlgorithmGaussNewton *solver = new g2o::OptimizationAlgorithmGaussNewton(std::unique_ptr<g2o::BlockSolverX>(solver_ptr));
     optimizer.setAlgorithm(solver);
 
     // Set KeyFrame vertices (all variables are fixed)
@@ -4204,9 +4205,9 @@ int Optimizer::OptimizeSim3(
     // 使用dense的求解器，（常见非dense求解器有cholmod线性求解器和shur补线性求解器）
     linearSolver = new g2o::LinearSolverDense<g2o::BlockSolverX::PoseMatrixType>();
 
-    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(linearSolver);
+    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(std::unique_ptr<g2o::BlockSolverX::LinearSolverType>(linearSolver));
     // 使用L-M迭代
-    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(std::unique_ptr<g2o::BlockSolverX>(solver_ptr));
     optimizer.setAlgorithm(solver);
 
     // Camera poses
@@ -4521,9 +4522,9 @@ void Optimizer::OptimizeEssentialGraph(
     g2o::BlockSolver_7_3::LinearSolverType *linearSolver =
         new g2o::LinearSolverEigen<g2o::BlockSolver_7_3::PoseMatrixType>();
     // 构造线性求解器
-    g2o::BlockSolver_7_3 *solver_ptr = new g2o::BlockSolver_7_3(linearSolver);
+    g2o::BlockSolver_7_3 *solver_ptr = new g2o::BlockSolver_7_3(std::unique_ptr<g2o::BlockSolver_7_3::LinearSolverType>(linearSolver));
     // 使用LM算法进行非线性迭代
-    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(std::unique_ptr<g2o::BlockSolver_7_3>(solver_ptr));
 
     // 第一次迭代的初始lambda值，如未指定会自动计算一个合适的值
     solver->setUserLambdaInit(1e-16);
@@ -4863,9 +4864,9 @@ void Optimizer::OptimizeEssentialGraph4DoF(
     optimizer.setVerbose(false);
     g2o::BlockSolverX::LinearSolverType *linearSolver =
         new g2o::LinearSolverEigen<g2o::BlockSolverX::PoseMatrixType>();
-    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(linearSolver);
+    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(std::unique_ptr<g2o::BlockSolverX::LinearSolverType>(linearSolver));
 
-    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(std::unique_ptr<g2o::BlockSolverX>(solver_ptr));
 
     optimizer.setAlgorithm(solver);
 
@@ -5205,9 +5206,9 @@ void Optimizer::LocalBundleAdjustment(
 
     linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>();
 
-    g2o::BlockSolver_6_3 *solver_ptr = new g2o::BlockSolver_6_3(linearSolver);
+    g2o::BlockSolver_6_3 *solver_ptr = new g2o::BlockSolver_6_3(std::unique_ptr<g2o::BlockSolver_6_3::LinearSolverType>(linearSolver));
 
-    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(std::unique_ptr<g2o::BlockSolver_6_3>(solver_ptr));
     optimizer.setAlgorithm(solver);
 
     optimizer.setVerbose(false);
@@ -5673,8 +5674,8 @@ void Optimizer::OptimizeEssentialGraph(
     optimizer.setVerbose(false);
     g2o::BlockSolver_7_3::LinearSolverType *linearSolver =
         new g2o::LinearSolverEigen<g2o::BlockSolver_7_3::PoseMatrixType>();
-    g2o::BlockSolver_7_3 *solver_ptr = new g2o::BlockSolver_7_3(linearSolver);
-    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    g2o::BlockSolver_7_3 *solver_ptr = new g2o::BlockSolver_7_3(std::unique_ptr<g2o::BlockSolver_7_3::LinearSolverType>(linearSolver));
+    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(std::unique_ptr<g2o::BlockSolver_7_3>(solver_ptr));
 
     solver->setUserLambdaInit(1e-16);
     optimizer.setAlgorithm(solver);
@@ -6193,9 +6194,9 @@ void Optimizer::MergeInertialBA(
     g2o::BlockSolverX::LinearSolverType *linearSolver;
     linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolverX::PoseMatrixType>();
 
-    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(linearSolver);
+    g2o::BlockSolverX *solver_ptr = new g2o::BlockSolverX(std::unique_ptr<g2o::BlockSolverX::LinearSolverType>(linearSolver));
 
-    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(std::unique_ptr<g2o::BlockSolverX>(solver_ptr));
 
     solver->setUserLambdaInit(1e3);
 

@@ -46,7 +46,7 @@
  * SUCH DAMAGE.                                                               *
  ******************************************************************************/
 #include "MLPnPsolver.h"
-
+#include "DUtils/Random.h"
 #include <Eigen/Sparse>
 
 // MLPnP算法，极大似然PnP算法，解决PnP问题，用在重定位中，不用运动的先验知识来估计相机位姿

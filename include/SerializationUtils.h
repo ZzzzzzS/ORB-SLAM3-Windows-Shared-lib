@@ -29,10 +29,10 @@
 #include <opencv2/features2d/features2d.hpp>
 
 #include <vector>
-
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
-
+using namespace std;
 template <class Archive>
 void serializeSophusSE3(Archive &ar, Sophus::SE3f &T, const unsigned int version)
 {

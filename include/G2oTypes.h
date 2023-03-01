@@ -19,11 +19,17 @@
 #ifndef G2OTYPES_H
 #define G2OTYPES_H
 
-#include "Thirdparty/g2o/g2o/core/base_vertex.h"
-#include "Thirdparty/g2o/g2o/core/base_binary_edge.h"
-#include "Thirdparty/g2o/g2o/types/types_sba.h"
-#include "Thirdparty/g2o/g2o/core/base_multi_edge.h"
-#include "Thirdparty/g2o/g2o/core/base_unary_edge.h"
+//#include "Thirdparty/g2o/g2o/core/base_vertex.h"
+//#include "Thirdparty/g2o/g2o/core/base_binary_edge.h"
+//#include "Thirdparty/g2o/g2o/types/types_sba.h"
+//#include "Thirdparty/g2o/g2o/core/base_multi_edge.h"
+//#include "Thirdparty/g2o/g2o/core/base_unary_edge.h"
+
+#include <g2o/core/base_vertex.h>
+#include <g2o/core/base_binary_edge.h>
+#include <g2o/types/sba/types_sba.h>
+#include <g2o/core/base_multi_edge.h>
+#include <g2o/core/base_unary_edge.h>
 
 #include <opencv2/core/core.hpp>
 
@@ -37,9 +43,11 @@
 #include "Converter.h"
 #include <math.h>
 
+#define WIN_EXPORT __declspec( dllexport )
+
 namespace ORB_SLAM3
 {
-
+using namespace std;
 class KeyFrame;
 class Frame;
 class GeometricCamera;
@@ -72,7 +80,7 @@ Eigen::Matrix<T, 3, 3> NormalizeRotation(const Eigen::Matrix<T, 3, 3> &R)
 }
 
 // 相关节点中使用，存放的是imu与cam的内外参
-class ImuCamPose
+class WIN_EXPORT ImuCamPose
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -111,7 +119,7 @@ public:
 };
 
 // 逆深度点，后面节点虽然有用到，但是声明的节点并没有使用到，暂时不看
-class InvDepthPoint
+class WIN_EXPORT InvDepthPoint
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -130,7 +138,7 @@ public:
 
 // Optimizable parameters are IMU pose
 // 优化中关于位姿的节点，6自由度
-class VertexPose : public g2o::BaseVertex<6, ImuCamPose>
+class WIN_EXPORT VertexPose : public g2o::BaseVertex<6, ImuCamPose>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -163,7 +171,7 @@ public:
 };
 
 // 优化中关于位姿的节点，4自由度  3个平移加一个航偏
-class VertexPose4DoF : public g2o::BaseVertex<4, ImuCamPose>
+class WIN_EXPORT VertexPose4DoF : public g2o::BaseVertex<4, ImuCamPose>
 {
     // Translation and yaw are the only optimizable variables
 public:
@@ -208,7 +216,7 @@ public:
 /** 
  * @brief 速度节点
  */
-class VertexVelocity : public g2o::BaseVertex<3, Eigen::Vector3d>
+class WIN_EXPORT VertexVelocity : public g2o::BaseVertex<3, Eigen::Vector3d>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -234,7 +242,7 @@ public:
 /** 
  * @brief 陀螺仪偏置节点
  */
-class VertexGyroBias : public g2o::BaseVertex<3, Eigen::Vector3d>
+class WIN_EXPORT VertexGyroBias : public g2o::BaseVertex<3, Eigen::Vector3d>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -260,7 +268,7 @@ public:
 /** 
  * @brief 加速度计偏置节点
  */
-class VertexAccBias : public g2o::BaseVertex<3, Eigen::Vector3d>
+class WIN_EXPORT VertexAccBias : public g2o::BaseVertex<3, Eigen::Vector3d>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -285,7 +293,7 @@ public:
 
 // Gravity direction vertex
 // 重力方向
-class GDirection
+class WIN_EXPORT GDirection
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -306,7 +314,7 @@ public:
 /** 
  * @brief 重力方向节点
  */
-class VertexGDir : public g2o::BaseVertex<2, GDirection>
+class WIN_EXPORT VertexGDir : public g2o::BaseVertex<2, GDirection>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -334,7 +342,7 @@ public:
 /** 
  * @brief 尺度节点
  */
-class VertexScale : public g2o::BaseVertex<1, double>
+class WIN_EXPORT VertexScale : public g2o::BaseVertex<1, double>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -365,7 +373,7 @@ public:
 /** 
  * @brief 没用
  */
-class VertexInvDepth : public g2o::BaseVertex<1, InvDepthPoint>
+class WIN_EXPORT VertexInvDepth : public g2o::BaseVertex<1, InvDepthPoint>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -397,7 +405,7 @@ public:
  * 因此，边也需要重新写，并且在imu优化时使用这个边
  */
 // 误差为2维， 类型为Eigen::Vector2d， 节点1类型为g2o::VertexSBAPointXYZ，节点二类型为VertexPose
-class EdgeMono : public g2o::BaseBinaryEdge<2, Eigen::Vector2d, g2o::VertexSBAPointXYZ, VertexPose>
+class WIN_EXPORT EdgeMono : public g2o::BaseBinaryEdge<2, Eigen::Vector2d, g2o::VertexSBAPointXYZ, VertexPose>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -454,7 +462,7 @@ public:
 /** 
  * @brief 单目纯位姿一元边
  */
-class EdgeMonoOnlyPose : public g2o::BaseUnaryEdge<2, Eigen::Vector2d, VertexPose>
+class WIN_EXPORT EdgeMonoOnlyPose : public g2o::BaseUnaryEdge<2, Eigen::Vector2d, VertexPose>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -494,7 +502,7 @@ public:
 /** 
  * @brief 双目位姿三维点二元边
  */
-class EdgeStereo : public g2o::BaseBinaryEdge<3, Eigen::Vector3d, g2o::VertexSBAPointXYZ, VertexPose>
+class WIN_EXPORT EdgeStereo : public g2o::BaseBinaryEdge<3, Eigen::Vector3d, g2o::VertexSBAPointXYZ, VertexPose>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -540,7 +548,7 @@ public:
 /** 
  * @brief 双目纯位姿一元边
  */
-class EdgeStereoOnlyPose : public g2o::BaseUnaryEdge<3, Eigen::Vector3d, VertexPose>
+class WIN_EXPORT EdgeStereoOnlyPose : public g2o::BaseUnaryEdge<3, Eigen::Vector3d, VertexPose>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -573,7 +581,7 @@ public:
 /** 
  * @brief 惯性边（误差为残差）
  */
-class EdgeInertial : public g2o::BaseMultiEdge<9, Vector9d>
+class WIN_EXPORT EdgeInertial : public g2o::BaseMultiEdge<9, Vector9d>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -636,7 +644,7 @@ public:
 /** 
  * @brief 初始化惯性边（误差为残差）
  */
-class EdgeInertialGS : public g2o::BaseMultiEdge<9, Vector9d>
+class WIN_EXPORT EdgeInertialGS : public g2o::BaseMultiEdge<9, Vector9d>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -733,7 +741,7 @@ public:
 /** 
  * @brief 陀螺仪偏置的二元边，除了残差及重投影误差外的第三个边，控制偏置变化
  */
-class EdgeGyroRW : public g2o::BaseBinaryEdge<3, Eigen::Vector3d, VertexGyroBias, VertexGyroBias>
+class WIN_EXPORT EdgeGyroRW : public g2o::BaseBinaryEdge<3, Eigen::Vector3d, VertexGyroBias, VertexGyroBias>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -775,7 +783,7 @@ public:
 /** 
  * @brief 加速度计偏置的二元边，除了残差及重投影误差外的第三个边，控制偏置变化
  */
-class EdgeAccRW : public g2o::BaseBinaryEdge<3, Eigen::Vector3d, VertexAccBias, VertexAccBias>
+class WIN_EXPORT EdgeAccRW : public g2o::BaseBinaryEdge<3, Eigen::Vector3d, VertexAccBias, VertexAccBias>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -817,7 +825,7 @@ public:
 /** 
  * @brief 先验类
  */
-class ConstraintPoseImu
+class WIN_EXPORT ConstraintPoseImu
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -848,7 +856,7 @@ public:
 /** 
  * @brief 先验边，前端优化单帧用到
  */
-class EdgePriorPoseImu : public g2o::BaseMultiEdge<15, Vector15d>
+class WIN_EXPORT EdgePriorPoseImu : public g2o::BaseMultiEdge<15, Vector15d>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -889,7 +897,7 @@ public:
 /** 
  * @brief 根据给定值的加速度计先验边，目的是把优化量维持在先验附近
  */
-class EdgePriorAcc : public g2o::BaseUnaryEdge<3, Eigen::Vector3d, VertexAccBias>
+class WIN_EXPORT EdgePriorAcc : public g2o::BaseUnaryEdge<3, Eigen::Vector3d, VertexAccBias>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -918,7 +926,7 @@ public:
 /** 
  * @brief 根据给定值的陀螺仪先验边，目的是把优化量维持在先验附近
  */
-class EdgePriorGyro : public g2o::BaseUnaryEdge<3, Eigen::Vector3d, VertexGyroBias>
+class WIN_EXPORT EdgePriorGyro : public g2o::BaseUnaryEdge<3, Eigen::Vector3d, VertexGyroBias>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -947,7 +955,7 @@ public:
 /** 
  * @brief 4DOF的二元边，误差为给定的旋转平移改变量 与 两个输入节点之间的旋转平移改变量的偏差
  */
-class Edge4DoF : public g2o::BaseBinaryEdge<6, Vector6d, VertexPose4DoF, VertexPose4DoF>
+class WIN_EXPORT Edge4DoF : public g2o::BaseBinaryEdge<6, Vector6d, VertexPose4DoF, VertexPose4DoF>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

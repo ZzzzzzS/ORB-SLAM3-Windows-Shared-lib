@@ -29,11 +29,11 @@
 #include"KeyFrame.h"
 #include"Frame.h"
 
-
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
-
-    class ORBmatcher
+using namespace std;
+    class WIN_EXPORT ORBmatcher
     {
     public:
 

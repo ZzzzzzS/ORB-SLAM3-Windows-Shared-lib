@@ -21,6 +21,27 @@
 
 #include<mutex>
 
+#ifdef WIN32
+#include <windows.h>
+#define sleep(sec)   Sleep(sec * 1000)
+#define msleep(msec) Sleep(msec)
+
+static void usleep(unsigned long usec)
+{
+    HANDLE timer;
+    LARGE_INTEGER interval;
+    interval.QuadPart = -(10 * usec);
+
+    timer = CreateWaitableTimer(NULL, TRUE, NULL);
+    SetWaitableTimer(timer, &interval, 0, NULL, NULL, 0);
+    WaitForSingleObject(timer, INFINITE);
+    CloseHandle(timer);
+}
+#else
+#include <unistd.h>
+#define msleep(msec) usleep(msec * 1000)
+#endif
+
 namespace ORB_SLAM3
 {
 
@@ -201,7 +222,7 @@ void MapPoint::AddObservation(KeyFrame* pKF, int idx)
 }
 
 // 删除某个关键帧对当前地图点的观测
-void MapPoint::EraseObservation(KeyFrame* pKF, bool erase)
+void MapPoint::EraseObservation(KeyFrame* pKF)
 {
     bool bBad=false;
     {
@@ -236,7 +257,7 @@ void MapPoint::EraseObservation(KeyFrame* pKF, bool erase)
     }
     // 告知可以观测到该MapPoint的Frame，该MapPoint已被删除
     if(bBad)
-        SetBadFlag(erase);
+        SetBadFlag();
 }
 
 // 能够观测到当前地图点的所有关键帧及该地图点在KF中的索引
@@ -260,7 +281,7 @@ int MapPoint::Observations()
  * @brief 告知可以观测到该MapPoint的Frame，该MapPoint已被删除
  * 
  */
-void MapPoint::SetBadFlag(bool erase)
+void MapPoint::SetBadFlag()
 {
     map<KeyFrame*, tuple<int,int>> obs;
     {
@@ -285,8 +306,7 @@ void MapPoint::SetBadFlag(bool erase)
     }
 
     // 擦除该MapPoint申请的内存
-    if (erase)
-        mpMap->EraseMapPoint(this);
+    mpMap->EraseMapPoint(this);
 }
 
 /**
@@ -486,7 +506,14 @@ void MapPoint::ComputeDistinctiveDescriptors()
     // N表示为一共多少个描述子
     const size_t N = vDescriptors.size();
 
-    float Distances[N][N];
+    //float Distances[N][N];
+	std::vector<std::vector<float>> Distances;
+	Distances.resize(N);
+	for (int i = 0; i < N; i++)
+	{
+		Distances[i].resize(N);
+	}
+	
     for(size_t i=0;i<N;i++)
     {
          // 和自己的距离当然是0
@@ -506,7 +533,7 @@ void MapPoint::ComputeDistinctiveDescriptors()
     for(size_t i=0;i<N;i++)
     {
         // 第i个描述子到其它所有所有描述子之间的距离
-        vector<int> vDists(Distances[i],Distances[i]+N);
+        vector<int> vDists(Distances[i].begin(), Distances[i].end());
         sort(vDists.begin(),vDists.end());
         // 获得中值
         int median = vDists[0.5*(N-1)];
@@ -770,9 +797,7 @@ void MapPoint::PreSave(set<KeyFrame*>& spKF,set<MapPoint*>& spMP)
     mBackupObservationsId1.clear();
     mBackupObservationsId2.clear();
     // Save the id and position in each KF who view it
-    std::vector<KeyFrame*> erase_kfs;
-    for(std::map<KeyFrame*,std::tuple<int,int> >::const_iterator it = mObservations.begin(), 
-        end = mObservations.end(); it != end; ++it)
+    for(std::map<KeyFrame*,std::tuple<int,int> >::const_iterator it = mObservations.begin(), end = mObservations.end(); it != end; ++it)
     {
         KeyFrame* pKFi = it->first;
         if(spKF.find(pKFi) != spKF.end())
@@ -782,11 +807,10 @@ void MapPoint::PreSave(set<KeyFrame*>& spKF,set<MapPoint*>& spMP)
         }
         else
         {
-            erase_kfs.push_back(pKFi); 
+            EraseObservation(pKFi);
         }
     }
-    for (auto pKFi : erase_kfs)
-        EraseObservation(pKFi, false);
+
     // Save the id of the reference KF
     // 3. 备份参考关键帧ID
     if(spKF.find(mpRefKF) != spKF.end())

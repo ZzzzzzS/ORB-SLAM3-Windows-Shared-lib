@@ -24,10 +24,10 @@
 #include <stdlib.h>
 #include <string>
 
-
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
-
+    using namespace std;
 class ViewerConfig
 {
 
@@ -48,7 +48,7 @@ class IMUConfig
 
 };
 
-class ConfigParser
+class WIN_EXPORT ConfigParser
 {
 public:
     bool ParseConfigFile(std::string &strConfigFile);

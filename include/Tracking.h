@@ -41,10 +41,10 @@
 
 #include <mutex>
 #include <unordered_set>
-
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
-
+using namespace std;
 class Viewer;
 class FrameDrawer;
 class Atlas;
@@ -53,7 +53,7 @@ class LoopClosing;
 class System;
 class Settings;
 
-class Tracking
+class WIN_EXPORT Tracking
 {  
 
 public:

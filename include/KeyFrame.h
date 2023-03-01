@@ -21,8 +21,10 @@
 #define KEYFRAME_H
 
 #include "MapPoint.h"
-#include "Thirdparty/DBoW2/DBoW2/BowVector.h"
-#include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
+//#include "Thirdparty/DBoW2/DBoW2/BowVector.h"
+//#include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
+#include <DBoW2/BowVector.h>
+#include <DBoW2/FeatureVector.h>
 #include "ORBVocabulary.h"
 #include "ORBextractor.h"
 #include "Frame.h"
@@ -37,11 +39,11 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/map.hpp>
-
+#define WIN_EXPORT __declspec( dllexport )
 
 namespace ORB_SLAM3
 {
-
+using namespace std;
 class Map;
 class MapPoint;
 class Frame;
@@ -49,7 +51,7 @@ class KeyFrameDatabase;
 
 class GeometricCamera;
 
-class KeyFrame
+class WIN_EXPORT KeyFrame
 {
     friend class boost::serialization::access;
 

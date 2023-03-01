@@ -67,7 +67,7 @@ void EdgeSE3ProjectXYZOnlyPose::linearizeOplus()
     Eigen::Matrix<double, 3, 6> SE3deriv;
     SE3deriv << 0.f, z, -y, 1.f, 0.f, 0.f,
         -z, 0.f, x, 0.f, 1.f, 0.f,
-        y, -x, 0.f, 0.f, 0.f, 1.f;
+        y, -x, 0.f, 0.f, 0.f, 1.f; //注意这个和十四讲的定义顺序不一样
 
     _jacobianOplusXi = -pCamera->projectJac(xyz_trans) * SE3deriv;
 }
@@ -128,7 +128,7 @@ void EdgeSE3ProjectXYZOnlyPoseToBody::linearizeOplus()
     注意这里是对李代数求导，ρlw != tlw 所以不能使用Pl = Rlw*Pw + tlw
     Pl = EXP(ξlw)*Pw    Pr = Rrl * EXP(ξlw) * Pw + trl
     让Pr 对 ξlw 求雅克比
-    相当于Rrl*(Pl 对 ξlw的雅克比)
+    相当于Rrl*(Pl 对 ξlw的雅克比) 非常神奇！
     */
     _jacobianOplusXi = -pCamera->projectJac(X_r) * mTrl.rotation().toRotationMatrix() * SE3deriv;
 }
@@ -272,7 +272,7 @@ VertexSim3Expmap::VertexSim3Expmap() : BaseVertex<7, g2o::Sim3>()
 
 bool VertexSim3Expmap::read(std::istream &is)
 {
-    g2o::Vector7d cam2world;
+    Eigen::Vector<double,7> cam2world;
     for (int i = 0; i < 6; i++)
     {
         is >> cam2world[i];
@@ -299,7 +299,7 @@ bool VertexSim3Expmap::read(std::istream &is)
 bool VertexSim3Expmap::write(std::ostream &os) const
 {
     g2o::Sim3 cam2world(estimate().inverse());
-    g2o::Vector7d lv = cam2world.log();
+    Eigen::Vector<double, 7> lv = cam2world.log();
     for (int i = 0; i < 7; i++)
     {
         os << lv[i] << " ";

@@ -28,17 +28,17 @@
 #include <mutex>
 
 #include <boost/serialization/base_object.hpp>
-
+#define WIN_EXPORT __declspec( dllexport )
 
 namespace ORB_SLAM3
 {
-
+using namespace std;
 class MapPoint;
 class KeyFrame;
 class Atlas;
 class KeyFrameDatabase;
 
-class Map
+class WIN_EXPORT Map
 {
     friend class boost::serialization::access;
 

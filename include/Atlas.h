@@ -19,6 +19,8 @@
 #ifndef ATLAS_H
 #define ATLAS_H
 
+#define WIN_EXPORT __declspec( dllexport )
+
 #include "Map.h"
 #include "MapPoint.h"
 #include "KeyFrame.h"
@@ -34,6 +36,7 @@
 
 namespace ORB_SLAM3
 {
+    using namespace std;
 class Viewer;
 class Map;
 class MapPoint;
@@ -46,7 +49,7 @@ class Pinhole;
 //BOOST_CLASS_EXPORT_GUID(Pinhole, "Pinhole")
 //BOOST_CLASS_EXPORT_GUID(KannalaBrandt8, "KannalaBrandt8")
 
-class Atlas
+class WIN_EXPORT Atlas
 {
     // 1. 对boost声明友元，boost就能调用Atlas的serialize了
     friend class boost::serialization::access;

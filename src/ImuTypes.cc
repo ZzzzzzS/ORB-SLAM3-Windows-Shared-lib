@@ -42,7 +42,7 @@ Eigen::Matrix3f NormalizeRotation(const Eigen::Matrix3f &R)
     // 1. 对于行列数一样的矩阵，Eigen::ComputeThinU | Eigen::ComputeThinV    与    Eigen::ComputeFullU | Eigen::ComputeFullV 一样
     // 2. 对于行列数不同的矩阵，例如3*4 或者 4*3 矩阵只有3个奇异向量，计算的时候如果是Thin 那么得出的UV矩阵列数只能是3，如果是full那么就是4
     // 3. thin会损失一部分数据，但是会加快计算，对于大型矩阵解算方程时，可以用thin加速得到结果
-    Eigen::JacobiSVD<Eigen::Matrix3f> svd(R, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    Eigen::JacobiSVD<Eigen::Matrix3f> svd(R, Eigen::ComputeFullU | Eigen::ComputeFullV); //TODO: 研究这个函数
     return svd.matrixU() * svd.matrixV().transpose();
 }
 
@@ -147,7 +147,7 @@ IntegratedRotation::IntegratedRotation(const Eigen::Vector3f &angVel, const Bias
     else
     {
         deltaR = Eigen::Matrix3f::Identity() + W * sin(d) / d + W * W * (1.0f - cos(d)) / d2;
-        rightJ = Eigen::Matrix3f::Identity() - W * (1.0f - cos(d)) / d2 + W * W * (d - sin(d)) / (d2 * d);
+        rightJ = Eigen::Matrix3f::Identity() - W * (1.0f - cos(d)) / d2 + W * W * (d - sin(d)) / (d2 * d); // 右雅可比
     }
 }
 
@@ -289,10 +289,10 @@ void Preintegrated::IntegrateNewMeasurement(const Eigen::Vector3f &acceleration,
     // Update position and velocity jacobians wrt bias correction
     // 因为随着时间推移，不可能每次都重新计算雅克比矩阵，所以需要做J(k+1) = j(k) + (~)这类事，分解方式与AB矩阵相同
     // 论文作者对forster论文公式的基础上做了变形，然后递归更新，参见 https://github.com/UZ-SLAMLab/ORB_SLAM3/issues/212
-    JPa = JPa + JVa * dt - 0.5f * dR * dt * dt;
-    JPg = JPg + JVg * dt - 0.5f * dR * dt * dt * Wacc * JRg;
-    JVa = JVa - dR * dt;
-    JVg = JVg - dR * dt * Wacc * JRg;
+    JPa = JPa + JVa * dt - 0.5f * dR * dt * dt; //位置对加速度偏置的雅克比
+    JPg = JPg + JVg * dt - 0.5f * dR * dt * dt * Wacc * JRg; //位置对角速度偏置的雅克比
+    JVa = JVa - dR * dt; //速度对加速度偏置的雅克比
+    JVg = JVg - dR * dt * Wacc * JRg; //速度对角速度偏置的雅克比
 
     // Update delta rotation
     // Step 2. 构造函数，会根据更新后的bias进行角度积分
@@ -309,7 +309,7 @@ void Preintegrated::IntegrateNewMeasurement(const Eigen::Vector3f &acceleration,
     // Update covariance
     // Step 3.更新协方差，frost经典预积分论文的第63个公式，推导了噪声（ηa, ηg）对dR dV dP 的影响
     C.block<9, 9>(0, 0) = A * C.block<9, 9>(0, 0) * A.transpose() + B * Nga * B.transpose();  // B矩阵为9*6矩阵 Nga 6*6对角矩阵，3个陀螺仪噪声的平方，3个加速度计噪声的平方
-    // 这一部分最开始是0矩阵，随着积分次数增加，每次都加上随机游走，偏置的信息矩阵
+    // 这一部分最开始是0矩阵，随着积分次数增加，每次都加上随机游走，偏置的信息矩阵, 这个随机游走对偏置约束，随机游走越来越大，约束越来越弱
     C.block<6, 6>(9, 9) += NgaWalk;
 
     // Update rotation jacobian wrt bias correction
@@ -324,7 +324,7 @@ void Preintegrated::IntegrateNewMeasurement(const Eigen::Vector3f &acceleration,
 }
 
 /** 
- * @brief 融合两个预积分，发生在删除关键帧的时候，3帧变2帧，需要把两段预积分融合
+ * @brief 融合两个预积分，发生在删除关键帧的时候，3帧变2帧，需要把两段预积分融合，偏置更换为更新后的偏置，两段偏置统一
  * @param pPrev 前面的预积分
  */
 void Preintegrated::MergePrevious(Preintegrated *pPrev)

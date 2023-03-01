@@ -22,10 +22,13 @@
 
 #include<vector>
 
-#include "Thirdparty/DBoW2/DBoW2/BowVector.h"
-#include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
+//#include "Thirdparty/DBoW2/DBoW2/BowVector.h"
+//#include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
+#include <DBoW2/BowVector.h>
+#include <DBoW2/FeatureVector.h>
 
-#include "Thirdparty/Sophus/sophus/geometry.hpp"
+//#include "Thirdparty/Sophus/sophus/geometry.hpp"
+#include <sophus/geometry.hpp>
 
 #include "ImuTypes.h"
 #include "ORBVocabulary.h"
@@ -38,9 +41,10 @@
 
 #include "Eigen/Core"
 #include "sophus/se3.hpp"
-
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
+    using namespace std;
 #define FRAME_GRID_ROWS 48
 #define FRAME_GRID_COLS 64
 
@@ -50,7 +54,7 @@ class ConstraintPoseImu;
 class GeometricCamera;
 class ORBextractor;
 
-class Frame
+class WIN_EXPORT Frame
 {
 public:
     Frame();

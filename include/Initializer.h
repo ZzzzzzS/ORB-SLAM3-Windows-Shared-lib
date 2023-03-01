@@ -24,14 +24,14 @@
 #include "Frame.h"
 
 #include <unordered_set>
-
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
-
+using namespace std;
 class Map;
 
 // THIS IS THE INITIALIZER FOR MONOCULAR SLAM. NOT USED IN THE STEREO OR RGBD CASE.
-class Initializer
+class WIN_EXPORT Initializer
 {
     typedef pair<int,int> Match;
 

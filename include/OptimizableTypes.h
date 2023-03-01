@@ -19,17 +19,24 @@
 #ifndef ORB_SLAM3_OPTIMIZABLETYPES_H
 #define ORB_SLAM3_OPTIMIZABLETYPES_H
 
-#include "Thirdparty/g2o/g2o/core/base_unary_edge.h"
-#include <Thirdparty/g2o/g2o/types/types_six_dof_expmap.h>
-#include <Thirdparty/g2o/g2o/types/sim3.h>
+//#include "Thirdparty/g2o/g2o/core/base_unary_edge.h"
+//#include <Thirdparty/g2o/g2o/types/types_six_dof_expmap.h>
+//#include <Thirdparty/g2o/g2o/types/sim3.h>
+
+#include <g2o/core/base_binary_edge.h>
+#include <g2o/types/sba/types_six_dof_expmap.h>
+#include <g2o/types/sim3/sim3.h>
 
 #include <Eigen/Geometry>
 #include <include/CameraModels/GeometricCamera.h>
 
+//这个类主要是纯视觉的g2o边定义
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
+    using namespace std;
 // 左目纯位姿优化的边，左目点的重投影误差相对于左目位姿
-class EdgeSE3ProjectXYZOnlyPose : public g2o::BaseUnaryEdge<2, Eigen::Vector2d, g2o::VertexSE3Expmap>
+class WIN_EXPORT EdgeSE3ProjectXYZOnlyPose : public g2o::BaseUnaryEdge<2, Eigen::Vector2d, g2o::VertexSE3Expmap>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -60,7 +67,7 @@ public:
 };
 
 // 两个相机中的右目上的重投影误差与左目位姿的边
-class EdgeSE3ProjectXYZOnlyPoseToBody : public g2o::BaseUnaryEdge<2, Eigen::Vector2d, g2o::VertexSE3Expmap>
+class WIN_EXPORT EdgeSE3ProjectXYZOnlyPoseToBody : public g2o::BaseUnaryEdge<2, Eigen::Vector2d, g2o::VertexSE3Expmap>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -94,7 +101,7 @@ public:
 
 
 // 左目纯位姿优化的边，左目点的重投影误差相对于左目位姿以及三维点
-class EdgeSE3ProjectXYZ : public g2o::BaseBinaryEdge<2, Eigen::Vector2d, g2o::VertexSBAPointXYZ, g2o::VertexSE3Expmap>
+class WIN_EXPORT EdgeSE3ProjectXYZ : public g2o::BaseBinaryEdge<2, Eigen::Vector2d, g2o::VertexSBAPointXYZ, g2o::VertexSE3Expmap>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -126,7 +133,7 @@ public:
 };
 
 // 两个相机中的右目上的重投影误差与左目位姿以及三维点的边
-class EdgeSE3ProjectXYZToBody : public g2o::BaseBinaryEdge<2, Eigen::Vector2d, g2o::VertexSBAPointXYZ, g2o::VertexSE3Expmap>
+class WIN_EXPORT EdgeSE3ProjectXYZToBody : public g2o::BaseBinaryEdge<2, Eigen::Vector2d, g2o::VertexSBAPointXYZ, g2o::VertexSE3Expmap>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -159,7 +166,7 @@ public:
 };
 
 // sim3节点
-class VertexSim3Expmap : public g2o::BaseVertex<7, g2o::Sim3>
+class WIN_EXPORT VertexSim3Expmap : public g2o::BaseVertex<7, g2o::Sim3>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -176,7 +183,7 @@ public:
     // 更新
     virtual void oplusImpl(const double *update_)
     {
-        Eigen::Map<g2o::Vector7d> update(const_cast<double *>(update_));
+        Eigen::Map<Eigen::Vector<double,7>> update(const_cast<double *>(update_));
 
         if (_fix_scale)
             update[6] = 0;
@@ -191,7 +198,7 @@ public:
 };
 
 // sim3边
-class EdgeSim3ProjectXYZ : public g2o::BaseBinaryEdge<2, Eigen::Vector2d, g2o::VertexSBAPointXYZ, ORB_SLAM3::VertexSim3Expmap>
+class WIN_EXPORT EdgeSim3ProjectXYZ : public g2o::BaseBinaryEdge<2, Eigen::Vector2d, g2o::VertexSBAPointXYZ, ORB_SLAM3::VertexSim3Expmap>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -213,7 +220,7 @@ public:
 };
 
 // sim3反投的边
-class EdgeInverseSim3ProjectXYZ : public g2o::BaseBinaryEdge<2, Eigen::Vector2d, g2o::VertexSBAPointXYZ, VertexSim3Expmap>
+class WIN_EXPORT EdgeInverseSim3ProjectXYZ : public g2o::BaseBinaryEdge<2, Eigen::Vector2d, g2o::VertexSBAPointXYZ, VertexSim3Expmap>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

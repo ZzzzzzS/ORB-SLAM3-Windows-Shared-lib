@@ -39,8 +39,17 @@
 #include "Converter.h"
 #include "GeometricTools.h"
 
+
+#ifdef ORB_SLAM3_EXPORTS
+#define WIN_EXPORT __declspec(dllexport)
+#else
+#define WIN_EXPORT __declspec(dllimport)
+#endif // !ORB_SLAM3_EXPORTS
+
+
 namespace ORB_SLAM3 {
-    class GeometricCamera {
+    using namespace std;
+    class WIN_EXPORT GeometricCamera {
 
         friend class boost::serialization::access;
 

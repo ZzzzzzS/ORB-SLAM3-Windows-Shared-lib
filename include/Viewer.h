@@ -30,14 +30,14 @@
 
 namespace ORB_SLAM3
 {
-
+using namespace std;
 class Tracking;
 class FrameDrawer;
 class MapDrawer;
 class System;
 class Settings;
-
-class Viewer
+#define WIN_EXPORT __declspec( dllexport )
+class WIN_EXPORT Viewer
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

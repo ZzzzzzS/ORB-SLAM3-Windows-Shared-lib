@@ -31,18 +31,19 @@
 #include <boost/algorithm/string.hpp>
 #include <thread>
 #include <mutex>
-#include "Thirdparty/g2o/g2o/types/types_seven_dof_expmap.h"
-
+//#include "Thirdparty/g2o/g2o/types/types_seven_dof_expmap.h"
+#include <g2o/types/sim3/types_seven_dof_expmap.h>
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
-
+using namespace std;
 class Tracking;
 class LocalMapping;
 class KeyFrameDatabase;
 class Map;
 
 
-class LoopClosing
+class WIN_EXPORT LoopClosing
 {
 public:
 

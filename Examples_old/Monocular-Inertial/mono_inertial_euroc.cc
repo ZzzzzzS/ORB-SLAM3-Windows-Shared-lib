@@ -30,6 +30,27 @@
 
 using namespace std;
 
+#ifdef WIN32
+#include <windows.h>
+#define sleep(sec)   Sleep(sec * 1000)
+#define msleep(msec) Sleep(msec)
+
+static void usleep(unsigned long usec)
+{
+    HANDLE timer;
+    LARGE_INTEGER interval;
+    interval.QuadPart = -(10 * usec);
+
+    timer = CreateWaitableTimer(NULL, TRUE, NULL);
+    SetWaitableTimer(timer, &interval, 0, NULL, NULL, 0);
+    WaitForSingleObject(timer, INFINITE);
+    CloseHandle(timer);
+}
+#else
+#include <unistd.h>
+#define msleep(msec) usleep(msec * 1000)
+#endif
+
 void LoadImages(const string &strImagePath, const string &strPathTimes,
                 vector<string> &vstrImages, vector<double> &vTimeStamps);
 

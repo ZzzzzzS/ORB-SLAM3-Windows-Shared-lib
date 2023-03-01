@@ -33,17 +33,18 @@
 
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/vector.hpp>
-
+#include <iostream>
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
-
+using namespace std;
 namespace IMU
 {
 
 const float GRAVITY_VALUE=9.81;
 
 //IMU measurement (gyro, accelerometer and timestamp)
-class Point
+class WIN_EXPORT Point
 {
 public:
     Point(const float &acc_x, const float &acc_y, const float &acc_z,
@@ -59,7 +60,7 @@ public:
 };
 
 //IMU biases (gyro and accelerometer)
-class Bias
+class WIN_EXPORT Bias
 {
     friend class boost::serialization::access;
     template<class Archive>
@@ -89,7 +90,7 @@ public:
 };
 
 //IMU calibration (Tbc, Tcb, noise)
-class Calib
+class WIN_EXPORT Calib
 {
     friend class boost::serialization::access;
     template<class Archive>
@@ -140,7 +141,7 @@ public:
 };
 
 //Preintegration of Imu Measurements
-class Preintegrated
+class WIN_EXPORT Preintegrated
 {
     friend class boost::serialization::access;
     template<class Archive>
@@ -228,6 +229,7 @@ private:
     // This is used to compute the updated values of the preintegration
     Eigen::Matrix<float,6,1> db;
 
+    //一次积分单元
     struct integrable
     {
         template<class Archive>

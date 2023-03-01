@@ -23,13 +23,13 @@
 #include <opencv2/core/core.hpp>
 #include <sophus/se3.hpp>
 #include <Eigen/Core>
-
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
-
+using namespace std;
 class KeyFrame;
 
-class GeometricTools
+class WIN_EXPORT GeometricTools
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

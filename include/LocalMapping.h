@@ -29,16 +29,16 @@
 
 #include <mutex>
 
-
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
-
+using namespace std;
 class System;
 class Tracking;
 class LoopClosing;
 class Atlas;
 
-class LocalMapping
+class WIN_EXPORT LocalMapping
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

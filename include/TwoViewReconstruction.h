@@ -24,11 +24,11 @@
 #include <unordered_set>
 
 #include <sophus/se3.hpp>
-
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
-
-    class TwoViewReconstruction
+using namespace std;
+    class WIN_EXPORT TwoViewReconstruction
     {
         typedef std::pair<int,int> Match;
 

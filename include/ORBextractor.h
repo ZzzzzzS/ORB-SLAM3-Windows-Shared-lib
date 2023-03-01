@@ -23,11 +23,11 @@
 #include <list>
 #include <opencv2/opencv.hpp>
 
-
+#define WIN_EXPORT __declspec( dllexport )
 namespace ORB_SLAM3
 {
-
-class ExtractorNode
+using namespace std;
+class WIN_EXPORT ExtractorNode
 {
 public:
     ExtractorNode():bNoMore(false){}
@@ -40,7 +40,7 @@ public:
     bool bNoMore;
 };
 
-class ORBextractor
+class WIN_EXPORT ORBextractor
 {
 public:
     

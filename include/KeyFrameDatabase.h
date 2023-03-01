@@ -34,17 +34,17 @@
 #include <boost/serialization/list.hpp>
 
 #include<mutex>
-
+#define WIN_EXPORT __declspec( dllexport )
 
 namespace ORB_SLAM3
 {
-
+using namespace std;
 class KeyFrame;
 class Frame;
 class Map;
 
 
-class KeyFrameDatabase
+class WIN_EXPORT KeyFrameDatabase
 {
     friend class boost::serialization::access;
 

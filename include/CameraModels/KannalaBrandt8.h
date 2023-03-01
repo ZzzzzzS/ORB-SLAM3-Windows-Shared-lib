@@ -19,6 +19,7 @@
 #ifndef CAMERAMODELS_KANNALABRANDT8_H
 #define CAMERAMODELS_KANNALABRANDT8_H
 
+#define WIN_EXPORT __declspec( dllexport )
 
 #include <assert.h>
 
@@ -27,7 +28,8 @@
 #include "TwoViewReconstruction.h"
 
 namespace ORB_SLAM3 {
-    class KannalaBrandt8 : public GeometricCamera {
+    using namespace std;
+    class WIN_EXPORT KannalaBrandt8 : public GeometricCamera {
 
     friend class boost::serialization::access;
 

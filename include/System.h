@@ -21,7 +21,7 @@
 #define SYSTEM_H
 
 
-#include <unistd.h>
+#include "unistd.h"
 #include<stdio.h>
 #include<stdlib.h>
 #include<string>
@@ -39,11 +39,11 @@
 #include "Viewer.h"
 #include "ImuTypes.h"
 #include "Settings.h"
-
+#define WIN_EXPORT __declspec( dllexport )
 
 namespace ORB_SLAM3
 {
-
+using namespace std;
 class Verbose
 {
 public:
@@ -56,7 +56,7 @@ public:
         VERBOSITY_DEBUG=4
     };
 
-    static eLevel th;
+    WIN_EXPORT static eLevel th;
 
 public:
     static void PrintMess(std::string str, eLevel lev)
@@ -80,7 +80,7 @@ class LocalMapping;
 class LoopClosing;
 class Settings;
 
-class System
+class WIN_EXPORT System
 {
 public:
     // Input sensor
