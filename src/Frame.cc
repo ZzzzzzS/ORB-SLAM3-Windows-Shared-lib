@@ -667,7 +667,7 @@ Eigen::Vector3f Frame::GetRelativePoseTlr_translation() {
 bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit)
 {
     // 单目，立体匹配双目，rgbd
-    if(Nleft == -1)
+    if(Nleft == -1)  //FIXME:这里是不是有bug啊，左相机是主相机啊
     {
         // cout << "\na";
 		// mbTrackInView是决定一个地图点是否进行重投影的标志
@@ -994,6 +994,7 @@ void Frame::ComputeBoW()
                                    mFeatVec,        //输出，记录node id及其对应的图像 feature对应的索引
                                    4);              //4表示从叶节点向前数的层数
     }
+    //TODO: 重新看DBoW2
 }
 
 /**
@@ -1093,7 +1094,7 @@ void Frame::ComputeImageBounds(const cv::Mat &imLeft)
  * 双目匹配函数
  *
  * 为左图的每一个特征点在右图中找到匹配点 \n
- * 根据基线(有冗余范围)上描述子距离找到匹配, 再进行SAD精确定位 \n ‘
+ * 根据基线(有冗余范围)上描述子距离找到匹配, 再进行SAD精确定位 \n ‘Sum of absolute differences简单匹配
  * 这里所说的SAD是一种双目立体视觉匹配算法，可参考[https://blog.csdn.net/u012507022/article/details/51446891]
  * 最后对所有SAD的值进行排序, 剔除SAD值较大的匹配对，然后利用抛物线拟合得到亚像素精度的匹配 \n 
  * 这里所谓的亚像素精度，就是使用这个拟合得到一个小于一个单位像素的修正量，这样可以取得更好的估计结果，计算出来的点的深度也就越准确
@@ -1346,7 +1347,7 @@ void Frame::ComputeStereoMatches()
 
     for(int i=vDistIdx.size()-1;i>=0;i--)
     {
-        if(vDistIdx[i].first<thDist)
+        if(vDistIdx[i].first<thDist) //FIXME:这里有bug吧，感觉应该是sort反了吧
             break;
         else
         {
@@ -1357,7 +1358,7 @@ void Frame::ComputeStereoMatches()
     }
 }
 
-// 计算RGBD图像的立体深度信息
+// 计算RGBD图像的立体深度信息，其实就是把这个当成平行双目了
 void Frame::ComputeStereoFromRGBD(const cv::Mat &imDepth)
 {
     /** 主要步骤如下:.对于彩色图像中的每一个特征点:<ul>  */
@@ -1427,7 +1428,7 @@ void Frame::setIntegrated()
 }
 
 /** 
- * @brief 左右目模式
+ * @brief 左右目模式，这个模式好像是鱼眼专用的
  */
 Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeStamp, ORBextractor* extractorLeft, ORBextractor* extractorRight, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth, GeometricCamera* pCamera, GeometricCamera* pCamera2, Sophus::SE3f& Tlr,Frame* pPrevF, const IMU::Calib &ImuCalib)
         :mpcpi(NULL), mpORBvocabulary(voc),mpORBextractorLeft(extractorLeft),mpORBextractorRight(extractorRight), mTimeStamp(timeStamp), mK(K.clone()), mK_(Converter::toMatrix3f(K)),  mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth),
@@ -1510,7 +1511,7 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
     mTimeStereoMatch = std::chrono::duration_cast<std::chrono::duration<double,std::milli> >(time_EndStereoMatches - time_StartStereoMatches).count();
 #endif
 
-    //Put all descriptors in the same matrix
+    //Put all descriptors in the same matrix //这个模式把特征点合并了，不太明白这一步想干啥
     cv::vconcat(mDescriptors,mDescriptorsRight,mDescriptors);
 
     mvpMapPoints = vector<MapPoint*>(N,static_cast<MapPoint*>(nullptr));
@@ -1520,7 +1521,7 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
 
     mpMutexImu = new std::mutex();
 
-    UndistortKeyPoints();
+    UndistortKeyPoints(); //这个模式后去畸变
 
 }
 
@@ -1555,7 +1556,7 @@ void Frame::ComputeStereoFishEyeMatches()
     int nMatches = 0;
     int descMatches = 0;
 
-    //Check matches using Lowe's ratio
+    //Check matches using Lowe's ratio，他这个用的经典OpenCV的匹配
     for(vector<vector<cv::DMatch>>::iterator it = matches.begin(); it != matches.end(); ++it)
     {
         // 对于每一对匹配的候选中，最小距离比次小距离的0.7倍还小的认为是好的匹配

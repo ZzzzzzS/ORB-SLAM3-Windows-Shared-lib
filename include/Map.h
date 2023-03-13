@@ -86,7 +86,7 @@ public:
     std::vector<MapPoint*> GetReferenceMapPoints();
 
     long unsigned int MapPointsInMap();
-    long unsigned  KeyFramesInMap();
+    long unsigned int KeyFramesInMap();
 
     long unsigned int GetId();
 
@@ -119,7 +119,7 @@ public:
 
     void SetInertialSensor();
     bool IsInertial();
-    void SetIniertialBA1();
+    void SetIniertialBA1();//TODO:IMU_BA是什么
     void SetIniertialBA2();
     bool GetIniertialBA1();
     bool GetIniertialBA2();
@@ -167,7 +167,7 @@ protected:
     std::vector<KeyFrame*> mvpBackupKeyFrames;
 
     KeyFrame* mpKFinitial;
-    KeyFrame* mpKFlowerID;
+    KeyFrame* mpKFlowerID; //TODO: 这个是什么
 
     unsigned long int mnBackupKFinitialID;
     unsigned long int mnBackupKFlowerID;

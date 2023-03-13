@@ -88,6 +88,7 @@ protected:
    const ORBVocabulary* mpVoc;
 
    // Inverted file
+   //反向查询，vector表示所有WordId，List表示keyframe，为每一个WordId反向存储KeyFrame
    std::vector<list<KeyFrame*> > mvInvertedFile;
 
    // For save relation without pointer, this is necessary for save/load function

@@ -471,7 +471,7 @@ void KeyFrame::UpdateConnections(bool upParent)
         {
             if (mit->first->mnId == mnId || mit->first->isBad() || mit->first->GetMap() != mpMap)
                 continue;
-            // 这里的操作非常精彩！
+            // 这里的操作非常精彩！这里的处理哪里精彩了。。。这不是cpp17的常规语法吗
             // map[key] = value，当要插入的键存在时，会覆盖键对应的原来的值。如果键不存在，则添加一组键值对
             // mit->first 是地图点看到的关键帧，同一个关键帧看到的地图点会累加到该关键帧计数
             // 所以最后KFcounter 第一个参数表示某个关键帧，第2个参数表示该关键帧看到了多少当前帧的地图点，也就是共视程度
@@ -513,7 +513,7 @@ void KeyFrame::UpdateConnections(bool upParent)
             // 对方关键帧也要添加这个信息
             // 更新KFcounter中该关键帧的mConnectedKeyFrameWeights
             // 更新其它KeyFrame的mConnectedKeyFrameWeights，更新其它关键帧与当前帧的连接权重
-            (mit->first)->AddConnection(this, mit->second);
+            (mit->first)->AddConnection(this, mit->second); //双向连接！
         }
     }
 

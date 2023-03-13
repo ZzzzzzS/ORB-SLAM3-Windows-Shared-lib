@@ -15,7 +15,7 @@
 #include <sstream>
 #include <stdint.h>
 
-#include "FORB.h"
+#include "DBoW2/FORB.h"
 
 using namespace std;
 

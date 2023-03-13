@@ -220,11 +220,12 @@ public:
     void ComputeBoW();
 
     // Covisibility graph functions
-    void AddConnection(KeyFrame* pKF, const int &weight);
+    void AddConnection(KeyFrame* pKF, const int &weight); //在UpdateConnections中调用
     void EraseConnection(KeyFrame* pKF);
 
-    void UpdateConnections(bool upParent=true);
-    void UpdateBestCovisibles();
+    void UpdateConnections(bool upParent=true); //重要！
+    //这个函数的核心内容就是在寻找有共视关系的关键帧，根据共视路点的数量来进行排序获得连接关系和生成树
+    void UpdateBestCovisibles(); //增删连接关系后就会调用，其实就是将关键帧按照权重排序
     std::set<KeyFrame *> GetConnectedKeyFrames();
     std::vector<KeyFrame* > GetVectorCovisibleKeyFrames();
     std::vector<KeyFrame*> GetBestCovisibilityKeyFrames(const int &N);
@@ -245,8 +246,8 @@ public:
     std::set<KeyFrame*> GetLoopEdges();
 
     // Merge Edges
-    void AddMergeEdge(KeyFrame* pKF);
-    set<KeyFrame*> GetMergeEdges();
+    void AddMergeEdge(KeyFrame* pKF); //这个好像是和存储相关的
+    set<KeyFrame*> GetMergeEdges(); //TODO: 这个是干啥的
 
     // MapPoint observation functions
     int GetNumberMPs();
@@ -311,8 +312,8 @@ public:
 public:
 
     static long unsigned int nNextId;
-    long unsigned int mnId;
-    const long unsigned int mnFrameId;
+    long unsigned int mnId;//关键帧ID
+    const long unsigned int mnFrameId;//帧ID
 
     const double mTimeStamp;
 
@@ -499,8 +500,8 @@ protected:
 
     // Mutex
     std::mutex mMutexPose; // for pose, velocity and biases
-    std::mutex mMutexConnections;
-    std::mutex mMutexFeatures;
+    std::mutex mMutexConnections; //共视连接关系
+    std::mutex mMutexFeatures; //地图点
     std::mutex mMutexMap;
 
 public:

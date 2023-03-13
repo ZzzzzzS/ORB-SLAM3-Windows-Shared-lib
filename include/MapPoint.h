@@ -118,7 +118,7 @@ public:
     void SetNormalVector(const Eigen::Vector3f& normal);
 
     KeyFrame* GetReferenceKeyFrame();
-
+    //特征点在左右目的索引
     std::map<KeyFrame*,std::tuple<int,int>> GetObservations();
     int Observations();
 
@@ -141,16 +141,17 @@ public:
         return mnFound;
     }
 
+    //获得代表性描述子，距离中值
     void ComputeDistinctiveDescriptors();
 
-    cv::Mat GetDescriptor();
+    cv::Mat GetDescriptor(); //获得所有描述子
 
     void UpdateNormalAndDepth();
 
     float GetMinDistanceInvariance();
     float GetMaxDistanceInvariance();
     int PredictScale(const float &currentDist, KeyFrame*pKF);
-    int PredictScale(const float &currentDist, Frame* pF);
+    int PredictScale(const float &currentDist, Frame* pF); //TODO:没看懂
 
     Map* GetMap();
     void UpdateMap(Map* pMap);
@@ -225,7 +226,7 @@ protected:
      cv::Mat mDescriptor;
 
      // Reference KeyFrame
-     KeyFrame* mpRefKF;
+     KeyFrame* mpRefKF; //TODO: 参考关键帧是什么
      long unsigned int mBackupRefKFId;
 
      // Tracking counters

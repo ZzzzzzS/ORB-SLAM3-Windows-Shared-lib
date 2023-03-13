@@ -24,8 +24,8 @@
 
 //#include "Thirdparty/DBoW2/DBoW2/BowVector.h"
 //#include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
-#include <DBoW2/BowVector.h>
-#include <DBoW2/FeatureVector.h>
+#include "DBoW2/BowVector.h"
+#include "DBoW2/FeatureVector.h"
 
 //#include "Thirdparty/Sophus/sophus/geometry.hpp"
 #include <sophus/geometry.hpp>
@@ -75,10 +75,10 @@ public:
     // ~Frame();
 
     // Extract ORB on the image. 0 for left image and 1 for right image.
-    void ExtractORB(int flag, const cv::Mat &im, const int x0, const int x1);
+    void ExtractORB(int flag, const cv::Mat &im, const int x0, const int x1); //TODO: x0,x1含义
 
     // Compute Bag of Words representation.
-    void ComputeBoW();
+    void ComputeBoW(); //仅使用了左目来匹配
 
     // Set the camera pose. (Imu pose is not modified!)
     void SetPose(const Sophus::SE3<float> &Tcw);
@@ -89,13 +89,14 @@ public:
     Eigen::Vector3f GetVelocity() const;
 
     // Set IMU pose and velocity (implicitly changes camera pose)
+    //修改IMU位姿时会更新相机位姿
     void SetImuPoseVelocity(const Eigen::Matrix3f &Rwb, const Eigen::Vector3f &twb, const Eigen::Vector3f &Vwb);
 
     Eigen::Matrix<float,3,1> GetImuPosition() const;
     Eigen::Matrix<float,3,3> GetImuRotation();
     Sophus::SE3<float> GetImuPose();
 
-    Sophus::SE3f GetRelativePoseTrl();
+    Sophus::SE3f GetRelativePoseTrl(); //353行还有个新开的双目的构造函数
     Sophus::SE3f GetRelativePoseTlr();
     Eigen::Matrix3f GetRelativePoseTlr_rotation();
     Eigen::Vector3f GetRelativePoseTlr_translation();
@@ -106,6 +107,7 @@ public:
     // and fill variables of the MapPoint to be used by the tracking
     bool isInFrustum(MapPoint* pMP, float viewingCosLimit);
 
+    //将路标点投影到当前帧，并获得去畸变后的二维点，kp和uv是一样的
     bool ProjectPointDistort(MapPoint* pMP, cv::Point2f &kp, float &u, float &v);
 
     Eigen::Vector3f inRefCoordinates(Eigen::Vector3f pCw);
@@ -125,7 +127,7 @@ public:
     // Backprojects a keypoint (if stereo/depth info available) into 3D world coordinates.
     bool UnprojectStereo(const int &i, Eigen::Vector3f &x3D);
 
-    ConstraintPoseImu* mpcpi;
+    ConstraintPoseImu* mpcpi; //TODO:这是什么
 
     bool imuIsPreintegrated();
     void setIntegrated();
@@ -191,7 +193,7 @@ private:
     bool mbHasVelocity;
 
 public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW //这个宏放在class的public区域就可以了，不一定要在最前面
 
     // Vocabulary used for relocalization.
     ORBVocabulary* mpORBvocabulary;
@@ -214,7 +216,7 @@ public:
     cv::Mat mDistCoef;
 
     // Stereo baseline multiplied by fx.
-    float mbf;
+    float mbf; //有基线 也有Trl
 
     // Stereo baseline in meters.
     float mb;
@@ -224,7 +226,7 @@ public:
     float mThDepth;
 
     // Number of KeyPoints.
-    int N;
+    int N; //应该是总的特征点数量
 
     // Vector of keypoints (original for visualization) and undistorted (actually used by the system).
     // In the stereo case, mvKeysUn is redundant as images must be rectified.
@@ -347,6 +349,7 @@ public:
     //Grid for the right image
     std::vector<std::size_t> mGridRight[FRAME_GRID_COLS][FRAME_GRID_ROWS];
 
+    //这个又有bf 又有 Tlr 开始混乱了
     Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeStamp, ORBextractor* extractorLeft, ORBextractor* extractorRight, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth, GeometricCamera* pCamera, GeometricCamera* pCamera2, Sophus::SE3f& Tlr,Frame* pPrevF = static_cast<Frame*>(NULL), const IMU::Calib &ImuCalib = IMU::Calib());
 
     //Stereo fisheye

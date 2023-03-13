@@ -69,13 +69,13 @@ int main(int argc, char **argv)
     ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::IMU_STEREO, true, 0, file_name);
     float imageScale = SLAM.GetImageScale();
 
-    struct sigaction sigIntHandler;
+    //struct sigaction sigIntHandler;
 
-    sigIntHandler.sa_handler = exit_loop_handler;
-    sigemptyset(&sigIntHandler.sa_mask);
-    sigIntHandler.sa_flags = 0;
+    //sigIntHandler.sa_handler = exit_loop_handler;
+    //sigemptyset(&sigIntHandler.sa_mask);
+    //sigIntHandler.sa_flags = 0;
 
-    sigaction(SIGINT, &sigIntHandler, NULL);
+    //sigaction(SIGINT, &sigIntHandler, NULL);
     b_continue_session = true;
 
     double offset = 0; // ms
