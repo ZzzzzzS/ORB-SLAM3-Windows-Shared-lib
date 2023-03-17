@@ -35,6 +35,7 @@ const float eps = 1e-4;
  * @brief 强制让R变成一个正交矩阵
  * @param R 待优化的旋转矩阵
  * @return 优化后的矩阵
+ * 这个函数主要在优化的时候用的，感觉因为delta\xi的微小误差无法完全映射为旋转矩阵导致的需要修正
  */
 Eigen::Matrix3f NormalizeRotation(const Eigen::Matrix3f &R)
 {
@@ -42,7 +43,7 @@ Eigen::Matrix3f NormalizeRotation(const Eigen::Matrix3f &R)
     // 1. 对于行列数一样的矩阵，Eigen::ComputeThinU | Eigen::ComputeThinV    与    Eigen::ComputeFullU | Eigen::ComputeFullV 一样
     // 2. 对于行列数不同的矩阵，例如3*4 或者 4*3 矩阵只有3个奇异向量，计算的时候如果是Thin 那么得出的UV矩阵列数只能是3，如果是full那么就是4
     // 3. thin会损失一部分数据，但是会加快计算，对于大型矩阵解算方程时，可以用thin加速得到结果
-    Eigen::JacobiSVD<Eigen::Matrix3f> svd(R, Eigen::ComputeFullU | Eigen::ComputeFullV); //TODO: 研究这个函数
+    Eigen::JacobiSVD<Eigen::Matrix3f> svd(R, Eigen::ComputeFullU | Eigen::ComputeFullV);
     return svd.matrixU() * svd.matrixV().transpose();
 }
 
@@ -160,7 +161,7 @@ Preintegrated::Preintegrated(const Bias &b_, const Calib &calib)
 {
     Nga = calib.Cov;
     NgaWalk = calib.CovWalk;
-    Initialize(b_);
+    Initialize(b_); //基本就是在设置各种0
 }
 
 // Copy constructor
@@ -272,7 +273,7 @@ void Preintegrated::IntegrateNewMeasurement(const Eigen::Vector3f &acceleration,
     avgW = (dT * avgW + accW * dt) / (dT + dt);
 
     // Update delta position dP and velocity dV (rely on no-updated delta rotation)
-    // 根据没有更新的dR来更新dP与dV  eq.(38)
+    // 根据没有更新的dR来更新dP与dV
     dP = dP + dV * dt + 0.5f * dR * acc * dt * dt;
     dV = dV + dR * acc * dt;
 

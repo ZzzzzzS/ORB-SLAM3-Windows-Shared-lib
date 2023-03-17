@@ -144,6 +144,7 @@ void LoopClosing::Run()
             std::chrono::steady_clock::time_point time_StartPR = std::chrono::steady_clock::now();
 #endif
             // Step 2 检测有没有共视的区域
+            //没有开启回环检测的话，这里就返回false了
             bool bFindedRegion = NewDetectCommonRegions();
 
 #ifdef REGISTER_TIMES

@@ -16,6 +16,7 @@
 * If not, see <http://www.gnu.org/licenses/>.
 */
 
+//历史遗留文件，没有地方用到，建议查看TwoViewReconstruction
 
 #ifndef INITIALIZER_H
 #define INITIALIZER_H

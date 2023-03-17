@@ -260,7 +260,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 
     //Initialize the Loop Closing thread and launch
     // mSensor!=MONOCULAR && mSensor!=IMU_MONOCULAR
-    // 创建并开启闭环线程
+    // 创建并开启闭环线程，就算闭环没有开启也要开启闭环线程
     mpLoopCloser = new LoopClosing(mpAtlas, mpKeyFrameDatabase, mpVocabulary, mSensor!=MONOCULAR, activeLC); // mSensor!=MONOCULAR);
     mptLoopClosing = new thread(&ORB_SLAM3::LoopClosing::Run, mpLoopCloser);
 
@@ -581,6 +581,7 @@ void System::ResetActiveMap()
     mbResetActiveMap = true;
 }
 
+//TODO: 研究清楚在哪里释放指针了，感觉资源没释放
 void System::Shutdown()
 {
     {

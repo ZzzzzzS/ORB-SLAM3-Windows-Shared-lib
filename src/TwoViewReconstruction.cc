@@ -122,6 +122,8 @@ bool TwoViewReconstruction::Reconstruct(
 
     // 3. 双线程分别计算
     // 加ref为了提供引用
+    //https://en.cppreference.com/w/cpp/utility/functional/ref
+    //c++的语法越来越垃圾了，哎
     thread threadH(&TwoViewReconstruction::FindHomography, this, ref(vbMatchesInliersH), ref(SH), ref(H));
     thread threadF(&TwoViewReconstruction::FindFundamental, this, ref(vbMatchesInliersF), ref(SF), ref(F));
 
@@ -141,7 +143,7 @@ bool TwoViewReconstruction::Reconstruct(
     // ORBSLAM2这里的值是0.4， TOSEE
     if (RH > 0.50) // if(RH>0.40)
     {
-        // cout << "Initialization from Homography" << endl;
+        // cout << "Initialization from Homography" << endl;//T21, vP3D, vbTriangulated是输出
         return ReconstructH(vbMatchesInliersH, H, mK, T21, vP3D, vbTriangulated, minParallax, 50);
     }
     else // if(pF_HF>0.6)
@@ -680,6 +682,7 @@ bool TwoViewReconstruction::ReconstructF(
  * 参考文献：Motion and structure from motion in a piecewise plannar environment
  * 这篇参考文献和下面的代码使用了Faugeras SVD-based decomposition算法
  * @see
+ * https://blog.csdn.net/kokerf/article/details/72885435
  * - Faugeras et al, Motion and structure from motion in a piecewise planar environment. International Journal of Pattern Recognition and Artificial Intelligence, 1988.
  * - Deeper understanding of the homography decomposition for vision-based control
  * 设平面法向量 n = (a, b, c)^t 有一点(x, y, z)在平面上，则ax + by + cz = d  即 1/d * n^t * x = 1 其中d表示

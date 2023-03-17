@@ -71,11 +71,17 @@ public:
     std::vector<KeyFrame *> DetectLoopCandidates(KeyFrame* pKF, float minScore);
 
     // Loop and Merge Detection
+    //vpLoopCand: 回环候选帧，在同一个地图内
+    //vpMergeCand：合并关键帧，不在一个地图内
+    //这三个函数基本分别按照最小得分阈值，最小公共单词阈值，最少帧个数阈值来选择回环/合并关键帧
+    //最小公共单词数是最大公共单词数的0.8倍
+    //存在一个分小组的过程，这个过程可以去除候选帧里的共视关键帧
     void DetectCandidates(KeyFrame* pKF, float minScore,vector<KeyFrame*>& vpLoopCand, vector<KeyFrame*>& vpMergeCand);
     void DetectBestCandidates(KeyFrame *pKF, vector<KeyFrame*> &vpLoopCand, vector<KeyFrame*> &vpMergeCand, int nMinWords);
     void DetectNBestCandidates(KeyFrame *pKF, vector<KeyFrame*> &vpLoopCand, vector<KeyFrame*> &vpMergeCand, int nNumCandidates);
 
     // Relocalization
+    //所有组中最高得分的0.75倍，作为最低阈值
     std::vector<KeyFrame*> DetectRelocalizationCandidates(Frame* F, Map* pMap);
 
     void PreSave();
